@@ -13,9 +13,6 @@ case class Connection(
                             userName: String,
                             password: String
                           ) {
-/*    def this( userName: String, password: String) {
-        this("http","localhost","7474",userName,password)
-    }*/
 
   def buildRequst( wSClient: WSClient): WSRequest = {
     val httpUrlForTransaction = s"$protocol://$serverName:$port/db/data/transaction/commit"
