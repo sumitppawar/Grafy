@@ -1,0 +1,16 @@
+target/
+lib_managed/
+bin/
+project/plugins/project/
+project/project/
+project/target/
+.history
+.cache
+.cache-main
+.classpath
+.idea
+.project
+.settings
+.worksheet
+
+
