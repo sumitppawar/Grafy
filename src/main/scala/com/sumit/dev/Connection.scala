@@ -2,6 +2,7 @@ package com.sumit.dev
 
 import play.api.libs.ws.{WSClient, WSRequest}
 import scala.concurrent.ExecutionContext
+import play.api.libs.json.Json
 
 /**
   * Created by sumit on 5/7/16.
@@ -29,6 +30,16 @@ case class Connection(
     val request = buildRequst(wsClient)
     
     for(wsResponse <- request.post(query)) yield {
+      wsResponse.body
+    }
+    
+  }
+  
+  
+  def runCypherQuery(query: Cypher)(implicit executionContext: ExecutionContext,wsClient: WSClient) = {
+    val request = buildRequst(wsClient)
+    
+    for(wsResponse <- request.post(Json.toJson(query))) yield {
       wsResponse.body
     }
     
