@@ -1,0 +1,28 @@
+CREATE CONSTRAINT ON (p:Person)
+ASSERT p.email IS UNIQUE
+
+CREATE CONSTRAINT ON (p:Person)
+ASSERT p.authcode IS UNIQUE
+
+CREATE CONSTRAINT ON (p:Person)
+ASSERT p.user_name IS UNIQUE
+
+CREATE CONSTRAINT ON (p:Person)
+ASSERT  p.mobile IS UNIQUE
+
+
+
+#Create Node Person
+CREATE (p:Person { user_name:"stevejobs",authcode:"abcdefgh",email:"steve.jobs@apple.com",first_name:"Steve",last_name:"jobs",middle_name:"", dob:"24/02/1955" })
+
+#Ceate Node Circle
+CREATE CONSTRAINT ON (c:Circle)
+ASSERT c.user_name IS UNIQUE
+
+CREATE (p:Circle { user_name:"stevejobs",modification_date:"24/02/1955" })
+
+#Create Relationship  Friend_Circle
+MATCH (p:Person {authcode:"abcdefgh"}),(c:Circle {user_name:"stevejobs"}) 
+CREATE (p)-[rel:Friend_Circle{count:1}]->(c) 
+RETURN rel
+
