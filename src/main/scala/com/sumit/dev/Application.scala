@@ -32,5 +32,19 @@ object Application extends App {
 			             ]
 			       }"""
 
-    for (t <- connection.runCypherQuery(cypher)) yield println(t)
+    //for (t <- connection.runCypherQuery(cypher)) yield println(t)
+    
+    
+    //Using Json writes for above Post Json
+    val query = "MATCH (you:Person)  where you.authCode={authCode} RETURN you"
+    
+    //Provide parameter in map
+    val parameters = Map("authCode"->"jgfiuegkrp3fiugtgwfj")
+    
+    //build statement
+    val statement = Statement(query,parameters)
+    
+    val cypherObje = Cypher(Seq(statement))
+    
+    for (t <- connection.runCypherQuery(cypherObje)) yield println(t)
 }
