@@ -1,4 +1,4 @@
-#Grafy
+##Grafy
 
 
 1. Grafy is build for Neo4j Graph db.
