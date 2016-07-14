@@ -1,4 +1,4 @@
-package com.sumit.connection
+package com.sumit.utils
 import java.util.Base64
 
 /**
