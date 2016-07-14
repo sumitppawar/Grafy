@@ -1,4 +1,4 @@
-package com.sumit.dev
+package com.sumit.connection
 
 import play.api.libs.ws.{WSClient, WSRequest}
 import scala.concurrent.ExecutionContext

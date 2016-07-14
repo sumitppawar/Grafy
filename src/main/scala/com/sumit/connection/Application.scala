@@ -1,4 +1,4 @@
-package com.sumit.dev
+package com.sumit.connection
 
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer

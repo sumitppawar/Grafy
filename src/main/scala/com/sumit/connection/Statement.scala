@@ -1,4 +1,4 @@
-package com.sumit.dev
+package com.sumit.connection
 
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
