@@ -34,14 +34,14 @@ case class Node(id: String) {
 }
 
 object Node {
-  
-  /**
+    /**
    * Create node with give properties 
    * @param label (Node label)
    * @param properties (Property of node)
    * @return It returns Node id
  	 */
-	def create(label: String, properties: Map[String, String])(implicit connection:Connection, executionContext: ExecutionContext,wsClient: WSClient): Future[String] = {
+
+  def create(label: String, properties: Map[String, String])(implicit connection:Connection, executionContext: ExecutionContext,wsClient: WSClient): Future[String] = {
 	  var parameter = GrafyConstant.EMPTY_STRING
 	 
 	  //Please find createNodePost.json and createNodeReponse.json for more Info
