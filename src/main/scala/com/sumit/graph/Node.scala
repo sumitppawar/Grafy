@@ -28,7 +28,7 @@ case class Node(id: String) {
    var strCQL = s"MATCH (node) WHERE ID(node)=$id RETURN "
    selectProperties.foreach {property => (strCQL += s"node.$property,")}
    strCQL = strCQL.dropRight(1)
-   connection.runCypherQuery(strCQL).onSuccess {
+   CQL.runCypherQuery(strCQL).onSuccess {
      case(strJson) => {
     	 val jsValu = Json.parse(strJson)
        val error = ResponseParser.getError(jsValu)
@@ -65,7 +65,7 @@ case class Node(id: String) {
   def delete()(implicit connection: Connection, executionContext: ExecutionContext, wsClient: WSClient): Future[Boolean] = {
     val promise = Promise[Boolean]
     var strCQL = s"MATCH (node) WHERE ID(node)=$id DELETE node "
-    connection.runCypherQuery(strCQL).onSuccess {
+    CQL.runCypherQuery(strCQL).onSuccess {
       case (strJson) => {
         val jsValu = Json.parse(strJson)
         val error = ResponseParser.getError(jsValu)
@@ -92,7 +92,7 @@ case class Node(id: String) {
     var strCQL = s"MATCH (node) WHERE ID(node)=$id SET "
     properties.foreach { case (key, value) => strCQL += s"node.$key=$value," }
     strCQL = strCQL.dropRight(1)
-    connection.runCypherQuery(strCQL).onSuccess {
+    CQL.runCypherQuery(strCQL).onSuccess {
       case (strJson) => {
         val jsValu = Json.parse(strJson)
         val error = ResponseParser.getError(jsValu)
@@ -124,7 +124,7 @@ object Node {
     val query = s"CREATE (node:$label {$parameter}) RETURN ID(node)"
     val cypherObje = Cypher(Seq(Statement(query, properties)))
 
-    connection.runCypherQuery(cypherObje).flatMap { strJson =>
+    CQL.runCypherQuery(cypherObje).flatMap { strJson =>
       val jsValu = Json.parse(strJson)
       val results = (jsValu \ "results").as[JsArray]
       val error = ResponseParser.getError(jsValu)
@@ -154,7 +154,7 @@ object Node {
    */
   def find(strCQL: String)(implicit connection: Connection, executionContext: ExecutionContext, wsClient: WSClient): Future[List[Map[String, Option[String]]]] = {
     val promise = Promise[List[Map[String, Option[String]]]]
-    connection.runCypherQuery(strCQL).onSuccess {
+    CQL.runCypherQuery(strCQL).onSuccess {
       case (strJson) => {
         val jsValu = Json.parse(strJson)
         val error = ResponseParser.getError(jsValu)

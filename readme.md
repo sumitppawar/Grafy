@@ -3,7 +3,7 @@
 1. Download Neo4j [Download](https://neo4j.com/download/)
 2. Install sbt [Instruction](http://www.scala-sbt.org/0.13/docs/Setup.html)
 3. Make eclipse project 
-..1. Got Grafy dir and run following in terminal 
+... Got Grafy dir and run following in terminal 
 ```
 sumit@sumeet:~/workspace/Grafy$ sbt
 > eclipse
@@ -26,7 +26,7 @@ implicit val connectionWithDetails = Connection("http","localhost","7474","neo4j
 ##### Execute CQL 
 ```java 
 val cqlQuery = "MATCH (n:Person) Return ID(n)"
-for (t <- connection.runCypherQuery(cqlQuery)) yield println(t)
+for (t <- CQL.runCypherQuery(cqlQuery)) yield println(t)
 ```
 ##### Parameterized CQL  this is recommended by Neo4j
 ```java 
@@ -36,7 +36,7 @@ val parameters = Map("authCode"->"jgfiuegkrp3fiugtgwfj")
 //build statement
 val statement = Statement(queryParametrised,parameters)
 val cypherObje = Cypher(Seq(statement))
-for (t <- connection.runCypherQuery(cypherObje)) yield println(t)
+for (t <- CQL.runCypherQuery(cypherObje)) yield println(t)
 ```
 ##### Create node 
 ```java

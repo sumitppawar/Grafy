@@ -25,18 +25,6 @@ case class Connection(
         .withHeaders("Content-Type" -> "application/json")
         .withHeaders(  "Authorization" -> httpAuthHeader)
   }
-  
-  def runCypherQuery(query: String)(implicit executionContext: ExecutionContext,wsClient: WSClient): Future[String]= {
-    val statement = Statement(query,Map())
-    val cypherObje = Cypher(Seq(statement))
-    val request = buildRequst(wsClient)
-    runCypherQuery(cypherObje)
-  }
-  
-  def runCypherQuery(query: Cypher)(implicit executionContext: ExecutionContext,wsClient: WSClient): Future[String]= {
-    val request = buildRequst(wsClient)
-    for(wsResponse <- request.post(Json.toJson(query))) yield wsResponse.body
-  }
 }
 
 object Connection {

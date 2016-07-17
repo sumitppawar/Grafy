@@ -29,7 +29,7 @@ object Application extends App {
     
     //Execute CQL
     val cqlQuery = "MATCH (n:Person) Return ID(n)"
-   // for (t <- connection.runCypherQuery(cqlQuery)) yield println(t)
+   // for (t <- CQL.runCypherQuery(cqlQuery)) yield println(t)
     
     //Pass parameter in map  CQL (preferred)
     val queryParametrised = "MATCH (you:Person)  where you.authCode={authCode} RETURN you"
