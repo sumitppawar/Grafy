@@ -5,8 +5,8 @@
 3. Make eclipse project 
 ..1. Got Grafy dir and run following in terminal 
 ```
-sbt
-eclipse
+sumit@sumeet:~/workspace/Grafy$ sbt
+> eclipse
 ```
 
 #### How To Use
@@ -38,14 +38,14 @@ val statement = Statement(queryParametrised,parameters)
 val cypherObje = Cypher(Seq(statement))
 for (t <- connection.runCypherQuery(cypherObje)) yield println(t)
 ```
-##### create node and provide node id
+##### Create node 
 ```java
 val nodeLabel = "Person"
 //node property
 val property = Map("name" -> "Steve Jobs", "email" -> "stevejobs@apple.com", "mobile" -> "9403586847")
-Node.create(label, prop).onComplete { x => println(x.get)}   
+Node.create(label, prop).onComplete { x => println(x.get)}   //Returns Node Id
 ```
-##### get node info
+##### Get node info
 ```java
 val node = Node("5") //Node(strlable:String, id: String)
 val resultFuture = node.getInfo(List("email","mobile"))
@@ -58,8 +58,9 @@ val map = Map("email"-> "'sumit@nevitus.in'")
 Node("22").update(map) 
 ```
 ##### Delete Node
->If node is connected to another, it can't delete
+
 ```java
+//If a node is connected to another node, it can't delete
 Node("22").delete
 ```
 ##### Find Node
