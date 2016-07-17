@@ -10,6 +10,9 @@ import com.sumit.connection.Statement
 import play.api.libs.json.JsObject
 import play.api.libs.json.Json
 import play.api.libs.json.JsArray
+import java.time.Year
+import scala.concurrent.Promise
+import play.api.libs.json.JsNull
 
 /**
  * This class indicate Node
@@ -17,10 +20,30 @@ import play.api.libs.json.JsArray
  * @author sumit
  *
  */
-case class Node(id: String) {
+case class Node(strlable:String, id: String) {
 
-  def getInfo(selectProperties: List[String]): Future[Map[String, String]] = {
-    null
+  def getInfo(selectProperties: List[String])(implicit connection:Connection, executionContext: ExecutionContext,wsClient: WSClient): Future[Map[String, Option[String]]] = {
+	 val promise = Promise[Map[String,Option[String]]] 
+   var strCQL = s"MATCH (node:$strlable) WHERE ID(node)=$id RETURN "
+   selectProperties.foreach {property => (strCQL += s" node.$property,")}
+   strCQL = strCQL.dropRight(1)
+   connection.runCypherQuery(strCQL).onSuccess {
+     case(strJson) => {
+    	 val jsValu = Json.parse(strJson)
+       val error = ResponseParser.getError(jsValu)
+      if (error._1 > 0) {
+        Future.failed(throw new Exception(error._2))
+      } else {
+       val results = (jsValu \ "results").as[JsArray]
+       val result = results(0).get
+       val data = (result \ "data")(0).get
+       val row = (data \ "row").as[JsArray].value
+       val finalMap = (for((key,value) <- (selectProperties zip row)) yield Map(key -> value.asOpt[String])).flatten.toMap
+       promise.success(finalMap)
+      }
+     }
+   }
+   promise.future
   } 
   
   def getRelated(relationLabel: String, nodePropertysSelect: List[String], relationPropertySelect: List[String]): Future[List[Map[String, String]]] = {
@@ -42,33 +65,29 @@ object Node {
  	 */
 
   def create(label: String, properties: Map[String, String])(implicit connection:Connection, executionContext: ExecutionContext,wsClient: WSClient): Future[String] = {
-	  var parameter = GrafyConstant.EMPTY_STRING
-	 
-	  //Please find createNodePost.json and createNodeReponse.json for more Info
-	  properties.keySet.foreach { key =>
-	    parameter += s"$key:{$key},";
-	  }
-	  parameter = parameter.dropRight(1)
-	  
-    val query =  s"CREATE (node:$label {$parameter}) RETURN ID(node)" 
-    val cypherObje = Cypher(Seq(Statement(query,properties)))
-    val resultFuture = connection.runCypherQuery(cypherObje)
-    
-    resultFuture.flatMap { strJson =>
+    var parameter = GrafyConstant.EMPTY_STRING
+    properties.keySet.foreach { key =>
+      parameter += s"$key:{$key},";
+    }
+    parameter = parameter.dropRight(1)
+    val query = s"CREATE (node:$label {$parameter}) RETURN ID(node)"
+    val cypherObje = Cypher(Seq(Statement(query, properties)))
+
+    connection.runCypherQuery(cypherObje).flatMap { strJson =>
       val jsValu = Json.parse(strJson)
       val results = (jsValu \ "results").as[JsArray]
+      val error = ResponseParser.getError(jsValu)
       
-      if((jsValu \ "errors").as[JsArray].value.size > 0) {
-       val message = (((jsValu \ "errors")(0).get) \ "message").as[String]
-       Future.failed(throw new Exception(message))
-      }else {
+      if (error._1 > 0) {
+        Future.failed(throw new Exception(error._2))
+      } else {
         val result = results(0).get
         val data = (result \ "data")(0).get
         val id = (data \ "row")(0).get
         Future.successful(id.toString())
       }
-      
-	  }
+
+    }
   }
   
   def delete(id: String): Future[Boolean] = {
@@ -87,8 +106,9 @@ object Node {
     null
   } 
   
-  def getInfo(label: String,ids: List[String], selectProperties:List[String]): Future[List[Map[String,String]]] = {
+  def getInfo(label: String,ids: List[String], selectProperties:List[String]): Future[List[Map[String,Option[String]]]] = {
     null
   }
+  
   
 }
