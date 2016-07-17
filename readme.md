@@ -40,3 +40,9 @@ val nodeLabel = "Person"
 val property = Map("name" -> "Steve Jobs", "email" -> "stevejobs@apple.com", "mobile" -> "9403586847")
 Node.create(label, prop).onComplete { x => println(x.get)}   
 ```
+##### get node info
+```java
+val node = Node("Person","5") //Node(strlable:String, id: String)
+val resultFuture = node.getInfo(List("email","mobile"))
+for (info <- resultFuture) yield println(info) //Prints Map[key,value]
+```
