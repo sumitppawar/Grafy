@@ -1,8 +1,13 @@
 # Grafy
-
-* Grafy is build for Neo4j Graph db.
-* Compatible with latest play Version (2.5.3).
-* Built using sbt
+#### Project Settings 
+1. Download Neo4j [Download](https://neo4j.com/download/)
+2. Install sbt [Instruction](http://www.scala-sbt.org/0.13/docs/Setup.html)
+3. Make eclipse project 
+..1. Got Grafy dir and run following in terminal 
+```
+sbt
+eclipse
+```
 
 #### How To Use
 ##### Build Connection
@@ -42,7 +47,26 @@ Node.create(label, prop).onComplete { x => println(x.get)}
 ```
 ##### get node info
 ```java
-val node = Node("Person","5") //Node(strlable:String, id: String)
+val node = Node("5") //Node(strlable:String, id: String)
 val resultFuture = node.getInfo(List("email","mobile"))
 for (info <- resultFuture) yield println(info) //Prints Map[key,value]
+```
+##### Update Node
+```java
+//Property to update
+val map = Map("email"-> "'sumit@nevitus.in'")
+Node("22").update(map) 
+```
+##### Delete Node
+>If node is connected to another, it can't delete
+```java
+Node("22").delete
+```
+##### Find Node
+```java
+//Build find query
+val strCQL = "MATCH (node:Person) WHERE node.friend='sumit' return node.name"
+Node.find(strCQL) 
+//return  List(Map(node.name -> Some(Ramdas)),Map(node.name -> Some(Prashant)),Map(node.name -> Some(Mohanish)))
+//Note key of map is return of node
 ```

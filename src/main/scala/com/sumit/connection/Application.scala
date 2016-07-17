@@ -38,11 +38,14 @@ object Application extends App {
     //build statement
     val statement = Statement(queryParametrised,parameters)
     val cypherObje = Cypher(Seq(statement))
-    val node = Node("Person","5")
-    val resultFuture = node.getInfo(List("email","mobile"))
+    val node = Node("2")
+    //for (info <- node.getInfo(List("email","mobile"))) yield println(info)
+    //for (info <- node.delete) yield println(info)
+    var map = Map("email"-> "'sumit@nevitus.in'" )
+    //for (info <- node.update(map)) yield println(info)
     
-    for (t <- resultFuture) yield println(t)
-    
+    var strCQL = "MATCH (node:Person) WHERE node.email='sumit@nevitus.com' return node.email"
+    for (info <-Node.find(strCQL)) yield println(info)
 /*    val label = "Person"
     val prop = Map("user_name" -> "ss3333333", "authcode" -> "ss", "email" -> "33ss33333@33u55u.com", "dob"->"03/07/1991")
     Node.create(label, prop).onComplete { x => println(x.get) }*/
