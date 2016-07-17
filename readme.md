@@ -3,7 +3,7 @@
 1. Download Neo4j [Download](https://neo4j.com/download/)
 2. Install sbt [Instruction](http://www.scala-sbt.org/0.13/docs/Setup.html)
 3. Make eclipse project 
-... Got Grafy dir and run following in terminal 
+
 ```
 sumit@sumeet:~/workspace/Grafy$ sbt
 > eclipse
