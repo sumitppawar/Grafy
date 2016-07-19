@@ -71,3 +71,8 @@ Node.find(strCQL)
 //return  List(Map(node.name -> Some(Ramdas)),Map(node.name -> Some(Prashant)),Map(node.name -> Some(Mohanish)))
 //Note key of map is return of node
 ```
+##### Connect Node
+```java
+```
+
+

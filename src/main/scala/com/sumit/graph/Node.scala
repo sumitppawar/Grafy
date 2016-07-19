@@ -21,38 +21,75 @@ import play.api.libs.json.JsValue
  * @author sumit
  *
  */
-case class Node(id: String) {
+case class Node(id: String) extends CQL{
 
-  def getInfo(selectProperties: List[String])(implicit connection:Connection, executionContext: ExecutionContext,wsClient: WSClient): Future[Map[String, Option[String]]] = {
-	 val promise = Promise[Map[String,Option[String]]] 
-   var strCQL = s"MATCH (node) WHERE ID(node)=$id RETURN "
-   selectProperties.foreach {property => (strCQL += s"node.$property,")}
-   strCQL = strCQL.dropRight(1)
-   CQL.runCypherQuery(strCQL).onSuccess {
-     case(strJson) => {
-    	 val jsValu = Json.parse(strJson)
-       val error = ResponseParser.getError(jsValu)
-      if (error._1 > 0) {
-        promise.failure(throw new Exception(error._2))
-      } else {
-       val results = (jsValu \ "results").as[JsArray]
-       val result = results(0).get
-       val data = (result \ "data")(0).get
-       val row = (data \ "row").as[JsArray].value
-       val finalMap = (for((key,value) <- (selectProperties zip row)) yield Map(key -> value.asOpt[String])).flatten.toMap
-       promise.success(finalMap)
+  /**
+   * @param selectProperties
+   * @param connection
+   * @param executionContext
+   * @param wsClient
+   * @return
+   */
+  def getInfo(selectProperties: List[String])(implicit connection: Connection, executionContext: ExecutionContext, wsClient: WSClient): Future[Map[String, Option[String]]] = {
+    val promise = Promise[Map[String, Option[String]]]
+    var strCQL = s"MATCH (node) WHERE ID(node)=$id RETURN "
+    selectProperties.foreach { property => (strCQL += s"node.$property,") }
+    strCQL = strCQL.dropRight(1)
+    runCypherQuery(strCQL).onSuccess {
+      case (strJson) => {
+        val jsValu = Json.parse(strJson)
+        val error = ResponseParser.getError(jsValu)
+        if (error._1 > 0) {
+          promise.failure(throw new Exception(error._2))
+        } else {
+          val results = (jsValu \ "results").as[JsArray]
+          val result = results(0).get
+          val data = (result \ "data")(0).get
+          val row = (data \ "row").as[JsArray].value
+          val finalMap = (for ((key, value) <- (selectProperties zip row)) yield Map(key -> value.asOpt[String])).flatten.toMap
+          promise.success(finalMap)
+        }
       }
-     }
-   }
-   promise.future
+    }
+    promise.future
   } 
   
-  def getRelated(relationLabel: String, nodePropertysSelect: List[String], relationPropertySelect: List[String]): Future[List[Map[String, String]]] = {
+  def getRelated(matchCQLForRelatedNode: String,relationLabel: String, nodePropertysSelect: List[String], relationPropertySelect: List[String], from: Boolean): Future[List[Map[String, Option[String]]]] = {
     null
   }
-  
-  def connect(relLabel: String,nodeId: String, from: Boolean, relProperties: Map[String, String]): Future[String] = {
-    null
+
+  /**
+   * Connect Node 
+   * @param relLabel
+   * @param nodeId
+   * @param from
+   * @param relProperties
+   * @param connection
+   * @param executionContext
+   * @param wsClient
+   * @return
+   */
+  def connect(relLabel: String, nodeId: String, from: Boolean, relProperties: Map[String, String])(implicit connection: Connection, executionContext: ExecutionContext, wsClient: WSClient): Future[String] = {
+    var strTem: String = GrafyConstant.EMPTY_STRING
+    relProperties.foreach { case (key, value) => strTem += s"$key:$value," }
+    strTem = strTem.dropRight(1)
+
+    var strCQL = s"MATCH (node_1) WHERE ID(node_1)=$id  MATCH (node_2) WHERE ID(node_2)=$nodeId CREATE "
+    if (from) strCQL += s"(node_1)-[rel:$relLabel {$strTem}]->(node_2)" else strCQL += s"(node_2)-[rel:$relLabel {$strTem}]->(node_1) "
+    strCQL += " RETURN ID(rel)"
+    runCypherQuery(strCQL).flatMap { strJson =>
+      val jsValu = Json.parse(strJson)
+      val results = (jsValu \ "results").as[JsArray]
+      val error = ResponseParser.getError(jsValu)
+      if (error._1 > 0) {
+        Future.failed(throw new Exception(error._2))
+      } else {
+        val result = results(0).get
+        val data = (result \ "data")(0).get
+        val id = (data \ "row")(0).get
+        Future.successful(id.toString())
+      }
+    }
   }
 
   /**
@@ -65,7 +102,7 @@ case class Node(id: String) {
   def delete()(implicit connection: Connection, executionContext: ExecutionContext, wsClient: WSClient): Future[Boolean] = {
     val promise = Promise[Boolean]
     var strCQL = s"MATCH (node) WHERE ID(node)=$id DELETE node "
-    CQL.runCypherQuery(strCQL).onSuccess {
+    runCypherQuery(strCQL).onSuccess {
       case (strJson) => {
         val jsValu = Json.parse(strJson)
         val error = ResponseParser.getError(jsValu)
@@ -92,7 +129,7 @@ case class Node(id: String) {
     var strCQL = s"MATCH (node) WHERE ID(node)=$id SET "
     properties.foreach { case (key, value) => strCQL += s"node.$key=$value," }
     strCQL = strCQL.dropRight(1)
-    CQL.runCypherQuery(strCQL).onSuccess {
+    runCypherQuery(strCQL).onSuccess {
       case (strJson) => {
         val jsValu = Json.parse(strJson)
         val error = ResponseParser.getError(jsValu)
@@ -107,7 +144,7 @@ case class Node(id: String) {
   }
 }
 
-object Node {
+object Node extends CQL{
   
   /**
    * Create node with give properties
@@ -124,7 +161,7 @@ object Node {
     val query = s"CREATE (node:$label {$parameter}) RETURN ID(node)"
     val cypherObje = Cypher(Seq(Statement(query, properties)))
 
-    CQL.runCypherQuery(cypherObje).flatMap { strJson =>
+    runCypherQuery(cypherObje).flatMap { strJson =>
       val jsValu = Json.parse(strJson)
       val results = (jsValu \ "results").as[JsArray]
       val error = ResponseParser.getError(jsValu)
@@ -154,7 +191,7 @@ object Node {
    */
   def find(strCQL: String)(implicit connection: Connection, executionContext: ExecutionContext, wsClient: WSClient): Future[List[Map[String, Option[String]]]] = {
     val promise = Promise[List[Map[String, Option[String]]]]
-    CQL.runCypherQuery(strCQL).onSuccess {
+    runCypherQuery(strCQL).onSuccess {
       case (strJson) => {
         val jsValu = Json.parse(strJson)
         val error = ResponseParser.getError(jsValu)
@@ -176,9 +213,37 @@ object Node {
     }
     promise.future
   }
-    
-  def connect(relLabel: String,fromNodeId: String, toNodeId: String, relProperties: Map[String, String]): Future[String]= {
-    null
+
+  /**
+   * @param relLabel
+   * @param fromNodeId
+   * @param toNodeId
+   * @param relProperties
+   * @param connection
+   * @param executionContext
+   * @param wsClient
+   * @return Rel Id
+   */
+  def connect(relLabel: String, fromNodeId: String, toNodeId: String, relProperties: Map[String, String])(implicit connection: Connection, executionContext: ExecutionContext, wsClient: WSClient): Future[String] = {
+    var strTem: String = GrafyConstant.EMPTY_STRING
+    relProperties.foreach { case (key, value) => strTem += s"$key:$value," }
+    strTem = strTem.dropRight(1)
+
+    var strCQL = s"MATCH (node_1) WHERE ID(node_1)=$fromNodeId  MATCH (node_2) WHERE ID(node_2)=toNodeId CREATE (node_1)-[rel:$relLabel {$strTem}]->(node_2) "
+    strCQL += " RETURN ID(rel)"
+    runCypherQuery(strCQL).flatMap { strJson =>
+      val jsValu = Json.parse(strJson)
+      val results = (jsValu \ "results").as[JsArray]
+      val error = ResponseParser.getError(jsValu)
+      if (error._1 > 0) {
+        Future.failed(throw new Exception(error._2))
+      } else {
+        val result = results(0).get
+        val data = (result \ "data")(0).get
+        val id = (data \ "row")(0).get
+        Future.successful(id.toString())
+      }
+    }
   } 
   
 }

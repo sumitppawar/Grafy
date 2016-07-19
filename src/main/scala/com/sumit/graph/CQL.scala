@@ -7,8 +7,10 @@ import scala.concurrent.ExecutionContext
 import com.sumit.connection.Connection
 import play.api.libs.json.Json
 import scala.concurrent.Future
+import play.api.libs.json.JsArray
+import scala.concurrent.Promise
 
-object CQL {
+class CQL {
 
   /**
    * @param query
@@ -17,7 +19,7 @@ object CQL {
    * @param wsClient
    * @return
    */
-  def runCypherQuery(query: String)(implicit connection: Connection, executionContext: ExecutionContext, wsClient: WSClient): Future[String] = {
+  protected def runCypherQuery(query: String)(implicit connection: Connection, executionContext: ExecutionContext, wsClient: WSClient): Future[String] = {
     val statement = Statement(query, Map())
     val cypherObje = Cypher(Seq(statement))
     val request = connection.buildRequst(wsClient)
@@ -31,8 +33,40 @@ object CQL {
    * @param wsClient
    * @return
    */
-  def runCypherQuery(query: Cypher)(implicit connection: Connection, executionContext: ExecutionContext, wsClient: WSClient): Future[String] = {
+   protected  def runCypherQuery(query: Cypher)(implicit connection: Connection, executionContext: ExecutionContext, wsClient: WSClient): Future[String] = {
     val request = connection.buildRequst(wsClient)
     for (wsResponse <- request.post(Json.toJson(query))) yield wsResponse.body
+  }
+
+  /**
+   * Execute CQL Return List[Map[String,String]]
+   * @param strCQL
+   * @param connection
+   * @param executionContext
+   * @param wsClient
+   * @return
+   */
+  def executeCQL(strCQL: String)(implicit connection: Connection, executionContext: ExecutionContext, wsClient: WSClient): Future[List[Map[String, Option[String]]]] = {
+    val promise = Promise[List[Map[String, Option[String]]]]
+    runCypherQuery(strCQL).onSuccess {
+      case (strJson) => {
+        val jsValu = Json.parse(strJson)
+        val error = ResponseParser.getError(jsValu)
+        if (error._1 > 0) {
+          promise.failure(throw new Exception(error._2))
+        } else {
+          val jsValu = Json.parse(strJson)
+          val column = ((jsValu \ "results")(0).get \ "columns").as[List[String]]
+          val results = ((jsValu \ "results")(0).get \ "data").as[JsArray].value
+          val resultList = (for (result <- results) yield {
+            (for ((key, value) <- (column zip (result \ "row").as[JsArray].value)) yield {
+              Map(key -> value.asOpt[String])
+            }).flatten.toMap
+          }).toList
+          promise.success(resultList)
+        }
+      }
+    }
+    promise.future
   }
 }

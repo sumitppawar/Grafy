@@ -1,6 +1,13 @@
 package com.sumit.graph
 
+import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import scala.concurrent.Promise
+
+import com.sumit.connection.Connection
+
+import play.api.libs.json.Json
+import play.api.libs.ws.WSClient
 
 /**
  * Indicate Relationship Between  Nodes
@@ -8,13 +15,33 @@ import scala.concurrent.Future
  * @author sumit
  *
  */
-case class Relationship(id: String) {
-  
-  def getInfo(relPropertySelect: List[String]): Future[Map[String, String]] = {
-    null
+case class Relationship(id: String) extends CQL{
+
+  /**
+   * Delete Node
+   * @param connection
+   * @param executionContext
+   * @param wsClient
+   * @return Boolean
+   */
+  def delete()(implicit connection: Connection, executionContext: ExecutionContext, wsClient: WSClient): Future[Boolean] = {
+    val promise = Promise[Boolean]
+    val strCQL = s"START r=rel($id) DELETE r"
+    runCypherQuery(strCQL).onSuccess {
+      case (strJson) => {
+        val jsValu = Json.parse(strJson)
+        val error = ResponseParser.getError(jsValu)
+        if (error._1 > 0) {
+          promise.failure(throw new Exception(error._2))
+        } else {
+          promise.success(true)
+        }
+      }
+    }
+    promise.future
   }
+  
 }
 
 object Relationship {
-  
 }

@@ -22,7 +22,7 @@ object Statement {
   
   def apply(query: String) = {
     val parameter: Map[String, String] = Map.empty
-    val resultDataContents = List("row","graph")
+    val resultDataContents = List("row")
     val includeStats = true;
     new Statement(query,parameter,resultDataContents,includeStats)
   }
