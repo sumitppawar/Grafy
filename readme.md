@@ -23,21 +23,7 @@ implicit val connection = Connection("neo4j", "farmer")
 //Build connection with details (protocol: String,serverName: String,port:String,userName: String,password: String)
 implicit val connectionWithDetails = Connection("http","localhost","7474","neo4j","farmer")
 ```
-##### Execute CQL 
-```java 
-val cqlQuery = "MATCH (n:Person) Return ID(n)"
-for (t <- CQL.runCypherQuery(cqlQuery)) yield println(t)
-```
-##### Parameterized CQL  this is recommended by Neo4j
-```java 
-val queryParametrised = "MATCH (you:Person)  where you.authCode={authCode} RETURN you"
-//Provide parameter in map ({authcode})
-val parameters = Map("authCode"->"jgfiuegkrp3fiugtgwfj")
-//build statement
-val statement = Statement(queryParametrised,parameters)
-val cypherObje = Cypher(Seq(statement))
-for (t <- CQL.runCypherQuery(cypherObje)) yield println(t)
-```
+
 ##### Create node 
 ```java
 val nodeLabel = "Person"
@@ -71,8 +57,13 @@ Node.find(strCQL)
 //return  List(Map(node.name -> Some(Ramdas)),Map(node.name -> Some(Prashant)),Map(node.name -> Some(Mohanish)))
 //Note key of map is return of node
 ```
-##### Connect Node
+##### Connect Nodes With Relation
 ```java
+val node = Node("5")
+val strRelId: Future[String]= connect("Friend", "8", true, Map()) //(relLabel: String, nodeId: String, from: Boolean, relProperties: Map[String, String])
 ```
-
-
+##### Delete Relation
+```java
+val rel = Relation("7")
+rel.delete()
+```

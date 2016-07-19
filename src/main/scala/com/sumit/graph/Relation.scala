@@ -15,7 +15,7 @@ import play.api.libs.ws.WSClient
  * @author sumit
  *
  */
-case class Relationship(id: String) extends CQL{
+case class Relation(id: String) extends CQL{
 
   /**
    * Delete Node
@@ -43,5 +43,5 @@ case class Relationship(id: String) extends CQL{
   
 }
 
-object Relationship {
+object Relation {
 }
