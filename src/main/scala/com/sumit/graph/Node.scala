@@ -30,7 +30,7 @@ case class Node(id: String) extends CQL{
    * @param wsClient
    * @return
    */
-  def getInfo(selectProperties: List[String])(implicit connection: Connection, executionContext: ExecutionContext, wsClient: WSClient): Future[Map[String, Option[String]]] = {
+  def getInfo(selectProperties: List[String])(implicit connection: Connection, executionContext: ExecutionContext, wsClient: WSClient): Future[Map[String, Option[Any]]] = {
     val promise = Promise[Map[String, Option[String]]]
     var strCQL = s"MATCH (node) WHERE ID(node)=$id RETURN "
     selectProperties.foreach { property => (strCQL += s"node.$property,") }
@@ -54,7 +54,7 @@ case class Node(id: String) extends CQL{
     promise.future
   } 
   
-  def getRelated(matchCQLForRelatedNode: String,relationLabel: String, nodePropertysSelect: List[String], relationPropertySelect: List[String], from: Boolean): Future[List[Map[String, Option[String]]]] = {
+  def getRelated(matchCQLForRelatedNode: String,relationLabel: String, nodePropertysSelect: List[String], relationPropertySelect: List[String], from: Boolean): Future[List[Map[String, Option[Any]]]] = {
     null
   }
 
@@ -189,7 +189,7 @@ object Node extends CQL{
    * @param wsClient
    * @return
    */
-  def find(strCQL: String)(implicit connection: Connection, executionContext: ExecutionContext, wsClient: WSClient): Future[List[Map[String, Option[String]]]] = {
+  def find(strCQL: String)(implicit connection: Connection, executionContext: ExecutionContext, wsClient: WSClient): Future[List[Map[String, Option[Any]]]] = {
     val promise = Promise[List[Map[String, Option[String]]]]
     runCypherQuery(strCQL).onSuccess {
       case (strJson) => {
