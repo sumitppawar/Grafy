@@ -5,7 +5,7 @@ import com.sumit.util.GrafyConstant
 import play.api.libs.ws.WSClient
 import scala.concurrent.ExecutionContext
 import com.sumit.connection.Connection
-import com.sumit.connection.Cypher
+import com.sumit.connection.Neo4jPostJson
 import com.sumit.connection.Statement
 import play.api.libs.json.JsObject
 import play.api.libs.json.Json
@@ -159,7 +159,7 @@ object Node extends CQL{
     }
     parameter = parameter.dropRight(1)
     val query = s"CREATE (node:$label {$parameter}) RETURN ID(node)"
-    val cypherObje = Cypher(Seq(Statement(query, properties)))
+    val cypherObje = Neo4jPostJson(Seq(Statement(query, properties)))
 
     runCypherQuery(cypherObje).flatMap { strJson =>
       val jsValu = Json.parse(strJson)

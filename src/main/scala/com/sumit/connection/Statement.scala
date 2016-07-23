@@ -15,7 +15,7 @@ case class Statement(query: String, parameter: Map[String, String],resultDataCon
 object Statement {
   
   def apply(query: String, parameter: Map[String, String]) = {
-    val resultDataContents = List("row","graph")
+    val resultDataContents = List("row")
     val includeStats = true;
     new Statement(query,parameter,resultDataContents,includeStats)
   }

@@ -1,6 +1,6 @@
 package com.sumit.graph
 
-import com.sumit.connection.Cypher
+import com.sumit.connection.Neo4jPostJson
 import play.api.libs.ws.WSClient
 import com.sumit.connection.Statement
 import scala.concurrent.ExecutionContext
@@ -21,7 +21,7 @@ class CQL {
    */
   protected def runCypherQuery(query: String)(implicit connection: Connection, executionContext: ExecutionContext, wsClient: WSClient): Future[String] = {
     val statement = Statement(query, Map())
-    val cypherObje = Cypher(Seq(statement))
+    val cypherObje = Neo4jPostJson(Seq(statement))
     val request = connection.buildRequst(wsClient)
     runCypherQuery(cypherObje)
   }
@@ -33,7 +33,7 @@ class CQL {
    * @param wsClient
    * @return
    */
-   protected  def runCypherQuery(query: Cypher)(implicit connection: Connection, executionContext: ExecutionContext, wsClient: WSClient): Future[String] = {
+   protected  def runCypherQuery(query: Neo4jPostJson)(implicit connection: Connection, executionContext: ExecutionContext, wsClient: WSClient): Future[String] = {
     val request = connection.buildRequst(wsClient)
     for (wsResponse <- request.post(Json.toJson(query))) yield wsResponse.body
   }

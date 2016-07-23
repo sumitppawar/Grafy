@@ -11,5 +11,5 @@ project/target/
 .project
 .settings
 .worksheet
-
+.cache-tests
 
