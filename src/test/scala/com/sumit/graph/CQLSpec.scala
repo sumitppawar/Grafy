@@ -29,7 +29,7 @@ class CQLSpec extends BaseGrafySpec {
   }
   
   "def executeCQL(strCQL: String)"  should "return failed response for Invalid query" in {
-    val result = executeCQL("MATCH")
+    val result = CQL.executeCQL("MATCH")
     whenReady(result.failed) {ex =>
       ex shouldBe an[GrafyException]
     }
