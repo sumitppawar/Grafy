@@ -14,6 +14,7 @@ import java.time.Year
 import scala.concurrent.Promise
 import play.api.libs.json.JsNull
 import play.api.libs.json.JsValue
+import com.sumit.exception.GrafyException
 
 /**
  * This class indicate Node
@@ -40,7 +41,7 @@ case class Node(id: String) extends CQL{
         val jsValu = Json.parse(strJson)
         val error = ResponseParser.getError(jsValu)
         if (error._1 > 0) {
-          promise.failure(throw new Exception(error._2))
+          promise.failure(new GrafyException(error._2))
         } else {
           val results = (jsValu \ "results").as[JsArray]
           val result = results(0).get
@@ -82,7 +83,7 @@ case class Node(id: String) extends CQL{
       val results = (jsValu \ "results").as[JsArray]
       val error = ResponseParser.getError(jsValu)
       if (error._1 > 0) {
-        Future.failed(throw new Exception(error._2))
+        Future.failed(new GrafyException(error._2))
       } else {
         val result = results(0).get
         val data = (result \ "data")(0).get
@@ -107,7 +108,7 @@ case class Node(id: String) extends CQL{
         val jsValu = Json.parse(strJson)
         val error = ResponseParser.getError(jsValu)
         if (error._1 > 0) {
-          promise.failure(throw new Exception(error._2))
+          promise.failure(new GrafyException(error._2))
         } else {
           promise.success(true)
         }
@@ -134,7 +135,7 @@ case class Node(id: String) extends CQL{
         val jsValu = Json.parse(strJson)
         val error = ResponseParser.getError(jsValu)
         if (error._1 > 0) {
-          promise.failure(throw new Exception(error._2))
+          promise.failure(new GrafyException(error._2))
         } else {
           promise.success(true)
         }
@@ -167,7 +168,7 @@ object Node extends CQL{
       val error = ResponseParser.getError(jsValu)
 
       if (error._1 > 0) {
-        Future.failed(throw new Exception(error._2))
+        Future.failed(new GrafyException(error._2))
       } else {
         val result = results(0).get
         val data = (result \ "data")(0).get
@@ -196,7 +197,7 @@ object Node extends CQL{
         val jsValu = Json.parse(strJson)
         val error = ResponseParser.getError(jsValu)
         if (error._1 > 0) {
-          promise.failure(throw new Exception(error._2))
+          promise.failure(new GrafyException(error._2))
         } else {
           val jsValu = Json.parse(strJson)
           val column = ((jsValu \ "results")(0).get \ "columns").as[List[String]]
@@ -236,7 +237,7 @@ object Node extends CQL{
       val results = (jsValu \ "results").as[JsArray]
       val error = ResponseParser.getError(jsValu)
       if (error._1 > 0) {
-        Future.failed(throw new Exception(error._2))
+        Future.failed(new GrafyException(error._2))
       } else {
         val result = results(0).get
         val data = (result \ "data")(0).get

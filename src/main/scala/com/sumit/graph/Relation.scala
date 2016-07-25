@@ -8,6 +8,7 @@ import com.sumit.connection.Connection
 
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
+import com.sumit.exception.GrafyException
 
 /**
  * Indicate Relationship Between  Nodes
@@ -32,7 +33,7 @@ case class Relation(id: String) extends CQL{
         val jsValu = Json.parse(strJson)
         val error = ResponseParser.getError(jsValu)
         if (error._1 > 0) {
-          promise.failure(throw new Exception(error._2))
+          promise.failure(new GrafyException(error._2))
         } else {
           promise.success(true)
         }

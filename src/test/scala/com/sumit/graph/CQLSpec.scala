@@ -6,8 +6,14 @@ import org.scalatest.time.Span
 import com.sumitcommon.BaseGrafySpec
 import play.api.libs.json.Json
 import com.sumit.connection.Connection
+import org.scalatest.time.Seconds
+import com.sumit.exception.GrafyException
 
 
+/**
+ * @author sumit
+ *
+ */
 class CQLSpec extends BaseGrafySpec {
 
   "def runCypherQuery(query: String)" should " should return within 1 second" in {
@@ -23,7 +29,10 @@ class CQLSpec extends BaseGrafySpec {
   }
   
   "def executeCQL(strCQL: String)"  should "return failed response for Invalid query" in {
-    
+    val result = executeCQL("MATCH")
+    whenReady(result.failed) {ex =>
+      ex shouldBe an[GrafyException]
+    }
   }
 
 }

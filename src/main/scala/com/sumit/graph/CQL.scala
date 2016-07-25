@@ -9,7 +9,12 @@ import play.api.libs.json.Json
 import scala.concurrent.Future
 import play.api.libs.json.JsArray
 import scala.concurrent.Promise
+import com.sumit.exception.GrafyException
 
+/**
+ * @author sumit
+ *
+ */
 trait CQL {
 
   /**
@@ -53,7 +58,7 @@ trait CQL {
         val jsValu = Json.parse(strJson)
         val error = ResponseParser.getError(jsValu)
         if (error._1 > 0) {
-          promise.failure(throw new Exception(error._2))
+          promise.failure(new GrafyException(error._2))
         } else {
           val jsValu = Json.parse(strJson)
           val column = ((jsValu \ "results")(0).get \ "columns").as[List[String]]
