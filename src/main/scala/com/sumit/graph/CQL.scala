@@ -42,8 +42,10 @@ trait CQL {
     val request = connection.buildRequst(wsClient)
     for (wsResponse <- request.post(Json.toJson(query))) yield wsResponse.body
   }
+}
 
-  /**
+object CQL extends CQL{
+    /**
    * Execute CQL Return List[Map[String,String]]
    * @param strCQL
    * @param connection
@@ -51,7 +53,7 @@ trait CQL {
    * @param wsClient
    * @return
    */
-  def executeCQL(strCQL: String)(implicit connection: Connection, executionContext: ExecutionContext, wsClient: WSClient): Future[List[Map[String, Option[String]]]] = {
+  def executeCQL(strCQL: String)(implicit connection: Connection, executionContext: ExecutionContext, wsClient: WSClient): Future[List[Map[String,Option[String]]]] = {
     val promise = Promise[List[Map[String, Option[String]]]]
     runCypherQuery(strCQL).onSuccess {
       case (strJson) => {
