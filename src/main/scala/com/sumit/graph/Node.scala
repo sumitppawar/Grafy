@@ -45,10 +45,14 @@ case class Node(id: String) extends CQL{
         } else {
           val results = (jsValu \ "results").as[JsArray]
           val result = results(0).get
-          val data = (result \ "data")(0).get
-          val row = (data \ "row").as[JsArray].value
+          val data = (result \ "data").as[JsArray]
+          if(data.value.size > 0) {
+          val row = (data.value(0) \ "row").as[JsArray].value
           val finalMap = (for ((key, value) <- (selectProperties zip row)) yield Map(key -> value.asOpt[String])).flatten.toMap
           promise.success(finalMap)
+          } else {
+        	  promise.success(Map())
+          }
         }
       }
     }
