@@ -12,5 +12,5 @@ class Neo4jPostJsonSpec extends BaseGrafySpec {
     val neo4jPostJson = Neo4jPostJson(List(statement_1))
     """{"statements":[{"statement":"MATCH (node:Person {name:name}) RETUNR node","parameters":{"name":"Sumit"},"resultDataContents":["row"],"includeStats":true}]}""" should equal(Json.toJson(neo4jPostJson).toString())
   }
-  
+
 }

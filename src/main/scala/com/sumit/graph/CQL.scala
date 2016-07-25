@@ -10,7 +10,7 @@ import scala.concurrent.Future
 import play.api.libs.json.JsArray
 import scala.concurrent.Promise
 
-class CQL {
+trait CQL {
 
   /**
    * @param query

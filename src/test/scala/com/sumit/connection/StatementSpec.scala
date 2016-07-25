@@ -16,7 +16,6 @@ class StatementSpec extends BaseGrafySpec {
     val query = "MATCH (node:Person {name:name}) RETUNR node"
     val parameter = Map("name" -> "Sumit")
     val statement = Statement(query, parameter,List("graph","row"),false)
-    println(Json.toJson(statement).toString())
     """{"statement":"MATCH (node:Person {name:name}) RETUNR node","parameters":{"name":"Sumit"},"resultDataContents":["graph","row"],"includeStats":false}""" should equal(Json.toJson(statement).toString())
   }
   
