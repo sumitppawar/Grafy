@@ -4,6 +4,7 @@ import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import play.api.libs.ws.ahc.AhcWSClient
 import com.sumit.graph.Node
+import com.sumit.graph.CQL
 
 
 /**
@@ -46,8 +47,11 @@ object Application extends App {
     
     var strCQL = "MATCH (node:Person) WHERE node.email='sumit@nevitus.com' return node.email"
     //for (info <-Node.find(strCQL)) yield println(info)
-   for(info <- Node("4").connect("Friend", "8", true, Map())) yield println(info)
+   //for(info <- Node("4").connect("Friend", "8", true, Map())) yield println(info)
 /*    val label = "Person"
     val prop = Map("user_name" -> "ss3333333", "authcode" -> "ss", "email" -> "33ss33333@33u55u.com", "dob"->"03/07/1991")
     Node.create(label, prop).onComplete { x => println(x.get) }*/
+   strCQL = "CREATE (node: Person {email:'sumit@test.com'}) RETURN ID(node),node.email"
+   for(f <- CQL.executeCQL(strCQL)) yield print(f)
+    
 }

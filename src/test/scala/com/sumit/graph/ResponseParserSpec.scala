@@ -1,6 +1,6 @@
 package com.sumit.graph
 
-import com.sumitcommon.BaseGrafySpec
+import com.sumit.common.BaseGrafySpec
 import play.api.libs.json.Json
 
 class ResponseParserSpec extends BaseGrafySpec {

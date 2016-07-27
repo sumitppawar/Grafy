@@ -1,4 +1,4 @@
-package com.sumitcommon
+package com.sumit.common
 
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.FlatSpec
@@ -14,6 +14,7 @@ import org.scalatest.ParallelTestExecution
 import org.scalatest.time.Millis
 import org.scalatest.time.Seconds
 import org.scalatest.time.Span
+import com.sumit.util.GrafyConstant
 
 /**
  * @author sumit
@@ -26,15 +27,19 @@ trait BaseGrafySpec extends FlatSpec with CQL with BeforeAndAfterEach with Befor
   
   implicit val context = play.api.libs.concurrent.Execution.Implicits.defaultContext
   implicit val connection = Connection("neo4j", "farmer")
-  val createQuery = "CREATE (node:Person {email:'sumit@nevitus.com'}) return node.email";
-  implicit val defaultPatience = PatienceConfig(timeout = Span(15, Seconds), interval = Span(15, Millis))
+  implicit val defaultPatience = PatienceConfig(timeout = Span(30, Seconds), interval = Span(15, Millis))
   
+  val createQuery = "CREATE (node:Person {email:'sumit@nevitus.com'}) return node.email";
+  
+  override def beforeAll() {
+    
+  }
   override def afterAll()  {
-    ws.close()
   }
   
   override def afterEach() {
     runCypherQuery("MATCH (node:Person {email:'sumit@nevitus.com'}) DELETE node")
+    ws.close()
   }
   
 }

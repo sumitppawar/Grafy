@@ -3,11 +3,11 @@ package com.sumit.graph
 
 import org.scalatest.time.Millis
 import org.scalatest.time.Span
-import com.sumitcommon.BaseGrafySpec
 import play.api.libs.json.Json
 import com.sumit.connection.Connection
 import org.scalatest.time.Seconds
 import com.sumit.exception.GrafyException
+import com.sumit.common.BaseGrafySpec
 
 
 /**
@@ -35,4 +35,13 @@ class CQLSpec extends BaseGrafySpec {
     }
   }
 
+  "def executeCQL(strCQL: String)" should "return valid  property value for single match" in {
+    val result = CQL.executeCQL("CREATE (node: Person {email:'sumitppawar@test.com',isAwesome:true}) RETURN ID(node),node.email,node.isAwesome")
+    whenReady(result) { list =>
+      val map = list(0)
+      val isAwesome = map.get("node.isAwesome").flatten
+      isAwesome should be(Some(true))
+      CQL.executeCQL("MATCH (node: Person {email:'sumitppawar@test.com'}) DELETE node")
+    }
+  }
 }

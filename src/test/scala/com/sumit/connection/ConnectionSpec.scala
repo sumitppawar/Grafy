@@ -1,7 +1,7 @@
 package com.sumit.connection
 
-import com.sumitcommon.BaseGrafySpec
 import com.sumit.util.GrafyUtils
+import com.sumit.common.BaseGrafySpec
 
 class ConnectionSpec extends BaseGrafySpec {
 

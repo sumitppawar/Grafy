@@ -10,6 +10,8 @@ import scala.concurrent.Future
 import play.api.libs.json.JsArray
 import scala.concurrent.Promise
 import com.sumit.exception.GrafyException
+import play.api.libs.json.Reads
+import com.sumit.util.GrafyUtils
 
 /**
  * @author sumit
@@ -45,6 +47,7 @@ trait CQL {
 }
 
 object CQL extends CQL{
+  
     /**
    * Execute CQL Return List[Map[String,String]]
    * @param strCQL
@@ -53,8 +56,8 @@ object CQL extends CQL{
    * @param wsClient
    * @return
    */
-  def executeCQL(strCQL: String)(implicit connection: Connection, executionContext: ExecutionContext, wsClient: WSClient): Future[List[Map[String,Option[String]]]] = {
-    val promise = Promise[List[Map[String, Option[String]]]]
+  def executeCQL(strCQL: String)(implicit connection: Connection, executionContext: ExecutionContext, wsClient: WSClient): Future[List[Map[String,Option[Any]]]] = {
+    val promise = Promise[List[Map[String, Option[Any]]]]
     runCypherQuery(strCQL).onSuccess {
       case (strJson) => {
         val jsValu = Json.parse(strJson)
@@ -67,7 +70,7 @@ object CQL extends CQL{
           val results = ((jsValu \ "results")(0).get \ "data").as[JsArray].value
           val resultList = (for (result <- results) yield {
             (for ((key, value) <- (column zip (result \ "row").as[JsArray].value)) yield {
-              Map(key -> value.asOpt[String])
+              Map(key -> GrafyUtils.jsValueToScalaValue(value))
             }).flatten.toMap
           }).toList
           promise.success(resultList)

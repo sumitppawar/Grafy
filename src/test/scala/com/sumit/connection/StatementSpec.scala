@@ -1,6 +1,6 @@
 package com.sumit.connection
 
-import com.sumitcommon.BaseGrafySpec
+import com.sumit.common.BaseGrafySpec
 import play.api.libs.json.Json
 
 class StatementSpec extends BaseGrafySpec {
