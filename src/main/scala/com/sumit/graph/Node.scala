@@ -15,6 +15,7 @@ import scala.concurrent.Promise
 import play.api.libs.json.JsNull
 import play.api.libs.json.JsValue
 import com.sumit.exception.GrafyException
+import com.sumit.util.GrafyUtils
 
 /**
  * This class indicate Node
@@ -32,7 +33,7 @@ case class Node(id: String) extends CQL{
    * @return
    */
   def getInfo(selectProperties: List[String])(implicit connection: Connection, executionContext: ExecutionContext, wsClient: WSClient): Future[Map[String, Option[Any]]] = {
-    val promise = Promise[Map[String, Option[String]]]
+    val promise = Promise[Map[String, Option[Any]]]
     var strCQL = s"MATCH (node) WHERE ID(node)=$id RETURN "
     selectProperties.foreach { property => (strCQL += s"node.$property,") }
     strCQL = strCQL.dropRight(1)
@@ -48,7 +49,7 @@ case class Node(id: String) extends CQL{
           val data = (result \ "data").as[JsArray]
           if(data.value.size > 0) {
           val row = (data.value(0) \ "row").as[JsArray].value
-          val finalMap = (for ((key, value) <- (selectProperties zip row)) yield Map(key -> value.asOpt[String])).flatten.toMap
+          val finalMap = (for ((key, value) <- (selectProperties zip row)) yield Map(key -> GrafyUtils.jsValueToScalaValue(value))).flatten.toMap
           promise.success(finalMap)
           } else {
         	  promise.success(Map())
