@@ -121,7 +121,7 @@ case class Node(id: String) extends CQL{
   }
 
   /**
-   * Update node 
+   * Update node
    * @param properties
    * @param connection
    * @param executionContext
@@ -130,10 +130,18 @@ case class Node(id: String) extends CQL{
    */
   def update(properties: Map[String, String])(implicit connection: Connection, executionContext: ExecutionContext, wsClient: WSClient): Future[Boolean] = {
     val promise = Promise[Boolean]
-    var strCQL = s"MATCH (node) WHERE ID(node)=$id SET "
-    properties.foreach { case (key, value) => strCQL += s"node.$key=$value," }
-    strCQL = strCQL.dropRight(1)
-    runCypherQuery(strCQL).onSuccess {
+    var strCQL = s"MATCH (node) WHERE ID(node)=$id "
+    strCQL = if(properties.size > 0) {
+               strCQL = s"$strCQL SET " 
+               properties.foreach { case (key, value) => strCQL += s"node.$key={$key}," }
+               strCQL.dropRight(1)
+              }
+              else {
+            	  s"$strCQL RETURN ID(node)" 
+              }
+    
+    val cypherObje = Neo4jPostJson(Seq(Statement(strCQL, properties)))
+    runCypherQuery(cypherObje).onSuccess {
       case (strJson) => {
         val jsValu = Json.parse(strJson)
         val error = ResponseParser.getError(jsValu)
@@ -158,10 +166,11 @@ object Node extends CQL{
    */
   def create(label: String, properties: Map[String, String])(implicit connection: Connection, executionContext: ExecutionContext, wsClient: WSClient): Future[String] = {
     var parameter = GrafyConstant.EMPTY_STRING
-    properties.keySet.foreach { key =>
+    properties.foreach { case(key,value) =>
       parameter += s"$key:{$key},";
     }
-    parameter = parameter.dropRight(1)
+    parameter = if(properties.size > 0)parameter.dropRight(1) else parameter
+    
     val query = s"CREATE (node:$label {$parameter}) RETURN ID(node)"
     val cypherObje = Neo4jPostJson(Seq(Statement(query, properties)))
 
