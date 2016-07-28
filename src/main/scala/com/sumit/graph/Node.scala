@@ -60,10 +60,6 @@ case class Node(id: String) extends CQL{
     promise.future
   } 
   
-  def getRelated(matchCQLForRelatedNode: String,relationLabel: String, nodePropertysSelect: List[String], relationPropertySelect: List[String], from: Boolean): Future[List[Map[String, Option[Any]]]] = {
-    null
-  }
-
   /**
    * Connect Node 
    * @param relLabel
@@ -77,13 +73,15 @@ case class Node(id: String) extends CQL{
    */
   def connect(relLabel: String, nodeId: String, from: Boolean, relProperties: Map[String, String])(implicit connection: Connection, executionContext: ExecutionContext, wsClient: WSClient): Future[String] = {
     var strTem: String = GrafyConstant.EMPTY_STRING
-    relProperties.foreach { case (key, value) => strTem += s"$key:$value," }
+    relProperties.foreach { case (key, value) => strTem += s"$key:{$key}," }
     strTem = strTem.dropRight(1)
 
     var strCQL = s"MATCH (node_1) WHERE ID(node_1)=$id  MATCH (node_2) WHERE ID(node_2)=$nodeId CREATE "
     if (from) strCQL += s"(node_1)-[rel:$relLabel {$strTem}]->(node_2)" else strCQL += s"(node_2)-[rel:$relLabel {$strTem}]->(node_1) "
     strCQL += " RETURN ID(rel)"
-    runCypherQuery(strCQL).flatMap { strJson =>
+    val cypherObje = Neo4jPostJson(Seq(Statement(strCQL, relProperties)))
+    
+    runCypherQuery(cypherObje).flatMap { strJson =>
       val jsValu = Json.parse(strJson)
       val results = (jsValu \ "results").as[JsArray]
       val error = ResponseParser.getError(jsValu)
