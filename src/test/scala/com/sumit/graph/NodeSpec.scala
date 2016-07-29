@@ -23,6 +23,14 @@ class NodeSpec extends BaseGrafySpec {
       map should be (empty)
     }
   }
+
+  "def getInfo " should "not fail if nothing is passed in info list" in {
+    val node = Node(nodeId)
+    whenReady(node.getInfo(List())) { map =>
+      map should be(empty)
+    }
+  }
+  
   
  "def getInfo " should "return map for existing node" in {
       val node = Node(nodeId)
@@ -116,6 +124,15 @@ class NodeSpec extends BaseGrafySpec {
       Await.result(Node(id).delete(), 30 second)
 
       resultMap.get("email").flatten should be (None)
+    }
+  }
+  
+  "def find(strCQL: String)" should " find node specified in CQL" in {
+    val strCQL = s"Match (node: Person {email:'test_1@grafy.com'}) RETURN ID(node)"
+    whenReady(Node.find(strCQL)){ list => 
+      val map = list(0)
+      val optId = map.get("ID(node)").flatten
+      optId should be (Some(nodeId))
     }
   }
   
