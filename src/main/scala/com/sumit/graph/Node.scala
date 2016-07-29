@@ -33,6 +33,12 @@ case class Node(id: String) extends CQL{
    * @return
    */
   def getInfo(selectProperties: List[String])(implicit connection: Connection, executionContext: ExecutionContext, wsClient: WSClient): Future[Map[String, Option[Any]]] = {
+    
+    if(selectProperties.size == 0)  {
+      val map: Map[String,Option[Any]] = Map()
+      return Future.successful(map)
+    }
+    
     val promise = Promise[Map[String, Option[Any]]]
     var strCQL = s"MATCH (node) WHERE ID(node)=$id RETURN "
     selectProperties.foreach { property => (strCQL += s"node.$property,") }
@@ -72,28 +78,10 @@ case class Node(id: String) extends CQL{
    * @return
    */
   def connect(relLabel: String, nodeId: String, from: Boolean, relProperties: Map[String, String])(implicit connection: Connection, executionContext: ExecutionContext, wsClient: WSClient): Future[String] = {
-    var strTem: String = GrafyConstant.EMPTY_STRING
-    relProperties.foreach { case (key, value) => strTem += s"$key:{$key}," }
-    strTem = strTem.dropRight(1)
-
-    var strCQL = s"MATCH (node_1) WHERE ID(node_1)=$id  MATCH (node_2) WHERE ID(node_2)=$nodeId CREATE "
-    if (from) strCQL += s"(node_1)-[rel:$relLabel {$strTem}]->(node_2)" else strCQL += s"(node_2)-[rel:$relLabel {$strTem}]->(node_1) "
-    strCQL += " RETURN ID(rel)"
-    val cypherObje = Neo4jPostJson(Seq(Statement(strCQL, relProperties)))
-    
-    runCypherQuery(cypherObje).flatMap { strJson =>
-      val jsValu = Json.parse(strJson)
-      val results = (jsValu \ "results").as[JsArray]
-      val error = ResponseParser.getError(jsValu)
-      if (error._1 > 0) {
-        Future.failed(new GrafyException(error._2))
-      } else {
-        val result = results(0).get
-        val data = (result \ "data")(0).get
-        val id = (data \ "row")(0).get
-        Future.successful(id.toString())
-      }
-    }
+    if(from)
+      Node.connect(relLabel, this.id, nodeId, relProperties) 
+      else 
+        Node.connect(relLabel, nodeId,this.id, relProperties) 
   }
 
   /**
@@ -203,7 +191,7 @@ object Node extends CQL{
    * @return
    */
   def find(strCQL: String)(implicit connection: Connection, executionContext: ExecutionContext, wsClient: WSClient): Future[List[Map[String, Option[Any]]]] = {
-    val promise = Promise[List[Map[String, Option[String]]]]
+    val promise = Promise[List[Map[String, Option[Any]]]]
     runCypherQuery(strCQL).onSuccess {
       case (strJson) => {
         val jsValu = Json.parse(strJson)
@@ -216,7 +204,7 @@ object Node extends CQL{
           val results = ((jsValu \ "results")(0).get \ "data").as[JsArray].value
           val resultList = (for (result <- results) yield {
             (for ((key, value) <- (column zip (result \ "row").as[JsArray].value)) yield {
-              Map(key -> value.asOpt[String])
+              Map(key -> GrafyUtils.jsValueToScalaValue(value))
             }).flatten.toMap
           }).toList
 
@@ -239,12 +227,15 @@ object Node extends CQL{
    */
   def connect(relLabel: String, fromNodeId: String, toNodeId: String, relProperties: Map[String, String])(implicit connection: Connection, executionContext: ExecutionContext, wsClient: WSClient): Future[String] = {
     var strTem: String = GrafyConstant.EMPTY_STRING
-    relProperties.foreach { case (key, value) => strTem += s"$key:$value," }
+    relProperties.foreach { case (key, value) => strTem += s"$key:{$key}," }
     strTem = strTem.dropRight(1)
 
-    var strCQL = s"MATCH (node_1) WHERE ID(node_1)=$fromNodeId  MATCH (node_2) WHERE ID(node_2)=toNodeId CREATE (node_1)-[rel:$relLabel {$strTem}]->(node_2) "
-    strCQL += " RETURN ID(rel)"
-    runCypherQuery(strCQL).flatMap { strJson =>
+    var strCQL = s"MATCH (node_1) WHERE ID(node_1)=$fromNodeId  MATCH (node_2) WHERE ID(node_2)=$toNodeId CREATE "
+    strCQL += s"(node_1)-[rel:$relLabel {$strTem}]->(node_2) RETURN ID(rel)"
+
+    val cypherObje = Neo4jPostJson(Seq(Statement(strCQL, relProperties)))
+
+    runCypherQuery(cypherObje).flatMap { strJson =>
       val jsValu = Json.parse(strJson)
       val results = (jsValu \ "results").as[JsArray]
       val error = ResponseParser.getError(jsValu)
