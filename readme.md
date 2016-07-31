@@ -29,11 +29,11 @@ implicit val connectionWithDetails = Connection("http","localhost","7474","neo4j
 val nodeLabel = "Person"
 //node property
 val property = Map("name" -> "Steve Jobs", "email" -> "stevejobs@apple.com", "mobile" -> "9403586847")
-Node.create(label, prop).onComplete { x => println(x.get)}   //Returns Node Id
+Node.create(label, prop).onComplete { x => println(x.get)}   //Returns Node Id(Long)
 ```
 ##### Get node info
 ```java
-val node = Node("5") //Node(strlable:String, id: String)
+val node = Node(5) //Node(strlable:String, id: String)
 val resultFuture = node.getInfo(List("email","mobile"))
 for (info <- resultFuture) yield println(info) //Prints Map[key,value]
 ```
@@ -41,13 +41,13 @@ for (info <- resultFuture) yield println(info) //Prints Map[key,value]
 ```java
 //Property to update
 val map = Map("email"-> "'sumit@nevitus.in'")
-Node("22").update(map) 
+Node(22).update(map) 
 ```
 ##### Delete Node
 
 ```java
 //If a node is connected to another node, it can't delete
-Node("22").delete
+Node(22).delete
 ```
 ##### Find Node
 ```java
@@ -59,11 +59,11 @@ Node.find(strCQL)
 ```
 ##### Connect Nodes With Relation
 ```java
-val node = Node("5")
-val strRelId: Future[String]= connect("Friend", "8", true, Map()) //(relLabel: String, nodeId: String, from: Boolean, relProperties: Map[String, String])
+val node = Node(5)
+val strRelId: Future[Long]= connect("Friend", 8, true, Map()) //(relLabel: String, nodeId: String, from: Boolean, relProperties: Map[String, String])
 ```
 ##### Delete Relation
 ```java
-val rel = Relation("7")
+val rel = Relation(7)
 rel.delete()
 ```
