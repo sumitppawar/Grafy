@@ -39,7 +39,7 @@ object Application extends App {
     //build statement
     val statement = Statement(queryParametrised,parameters)
     val cypherObje = Neo4jPostJson(Seq(statement))
-    val node = Node("2")
+    val node = Node(2)
     //for (info <- node.getInfo(List("email","mobile"))) yield println(info)
     //for (info <- node.delete) yield println(info)
     var map = Map("email"-> "'sumit@nevitus.in'" )
