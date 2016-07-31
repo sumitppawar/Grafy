@@ -19,7 +19,7 @@ object GrafyUtils {
   }
   
   def jsValueToScalaValue(jsValue: JsValue) = {
-    if(jsValue.isInstanceOf[JsNumber]) jsValue.asOpt[Int]
+    if(jsValue.isInstanceOf[JsNumber]) jsValue.asOpt[Long]
     else if(jsValue.isInstanceOf[JsBoolean]) jsValue.asOpt[Boolean] 
     else  jsValue.asOpt[String] 
   }

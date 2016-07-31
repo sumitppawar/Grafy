@@ -1,21 +1,20 @@
 package com.sumit.graph
 
-import scala.concurrent.Future
-import com.sumit.util.GrafyConstant
-import play.api.libs.ws.WSClient
 import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
+import scala.concurrent.Promise
+
 import com.sumit.connection.Connection
 import com.sumit.connection.Neo4jPostJson
 import com.sumit.connection.Statement
-import play.api.libs.json.JsObject
-import play.api.libs.json.Json
-import play.api.libs.json.JsArray
-import java.time.Year
-import scala.concurrent.Promise
-import play.api.libs.json.JsNull
-import play.api.libs.json.JsValue
 import com.sumit.exception.GrafyException
+import com.sumit.util.GrafyConstant
 import com.sumit.util.GrafyUtils
+
+import play.api.libs.json.JsArray
+import play.api.libs.json.JsValue
+import play.api.libs.json.Json
+import play.api.libs.ws.WSClient
 
 /**
  * This class indicate Node
@@ -23,7 +22,7 @@ import com.sumit.util.GrafyUtils
  * @author sumit
  *
  */
-case class Node(id: String) extends CQL{
+case class Node(id: Long) extends CQL{
 
   /**
    * @param selectProperties
@@ -77,7 +76,7 @@ case class Node(id: String) extends CQL{
    * @param wsClient
    * @return
    */
-  def connect(relLabel: String, nodeId: String, from: Boolean, relProperties: Map[String, String])(implicit connection: Connection, executionContext: ExecutionContext, wsClient: WSClient): Future[String] = {
+  def connect(relLabel: String, nodeId: Long, from: Boolean, relProperties: Map[String, String])(implicit connection: Connection, executionContext: ExecutionContext, wsClient: WSClient): Future[Long] = {
     if(from)
       Node.connect(relLabel, this.id, nodeId, relProperties) 
       else 
@@ -152,7 +151,7 @@ object Node extends CQL{
    * @param properties (Property of node)
    * @return It returns Node id
    */
-  def create(label: String, properties: Map[String, String])(implicit connection: Connection, executionContext: ExecutionContext, wsClient: WSClient): Future[String] = {
+  def create(label: String, properties: Map[String, String])(implicit connection: Connection, executionContext: ExecutionContext, wsClient: WSClient): Future[Long] = {
     var parameter = GrafyConstant.EMPTY_STRING
     properties.foreach { case(key,value) =>
       parameter += s"$key:{$key},";
@@ -173,7 +172,7 @@ object Node extends CQL{
         val result = results(0).get
         val data = (result \ "data")(0).get
         val id = (data \ "row")(0).get
-        Future.successful(id.toString())
+        Future.successful(GrafyUtils.jsValueToScalaValue(id)match{case Some(x:Long) => x})
       }
     }
   }
@@ -225,7 +224,7 @@ object Node extends CQL{
    * @param wsClient
    * @return Rel Id
    */
-  def connect(relLabel: String, fromNodeId: String, toNodeId: String, relProperties: Map[String, String])(implicit connection: Connection, executionContext: ExecutionContext, wsClient: WSClient): Future[String] = {
+  def connect(relLabel: String, fromNodeId: Long, toNodeId: Long, relProperties: Map[String, String])(implicit connection: Connection, executionContext: ExecutionContext, wsClient: WSClient): Future[Long] = {
     var strTem: String = GrafyConstant.EMPTY_STRING
     relProperties.foreach { case (key, value) => strTem += s"$key:{$key}," }
     strTem = strTem.dropRight(1)
@@ -245,7 +244,7 @@ object Node extends CQL{
         val result = results(0).get
         val data = (result \ "data")(0).get
         val id = (data \ "row")(0).get
-        Future.successful(id.toString())
+        Future.successful(GrafyUtils.jsValueToScalaValue(id)match{case Some(x:Long) => x})
       }
     }
   } 

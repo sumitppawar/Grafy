@@ -16,7 +16,7 @@ import com.sumit.exception.GrafyException
  * @author sumit
  *
  */
-case class Relation(id: String) extends CQL{
+case class Relation(id: Long) extends CQL{
 
   /**
    * Delete Node
