@@ -26,7 +26,7 @@ jobs:
     steps:
       - name: Install Jq
         run: |
-         sudo JQ=/usr/bin/jq
+         sudo export JQ=/usr/bin/jq
          sudo curl https://stedolan.github.io/jq/download/linux64/jq > $JQ && chmod +x $JQ
          sudo ls -la $JQ
       - uses: actions/checkout@master
