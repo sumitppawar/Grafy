@@ -24,12 +24,11 @@ jobs:
     name: SonarQube Trigger
     runs-on: ubuntu-latest
     steps:
-      - name: Install Jq
-        run: |
-         sudo curl https://stedolan.github.io/jq/download/linux64/jq > /usr/bin/jq && chmod +x /usr/bin/jq
-         sudo ls -la /usr/bin/jq
-      - uses: actions/checkout@master
-      - name: SonarQube Scan
-        uses: kitabisa/sonarqube-action@v0.0.1
+    - uses: actions/checkout@master
+    - name: SonarQube Scan
+      uses: kitabisa/sonarqube-action@master
+      with:
+        host: ${{ secrets.SONARQUBE_HOST }}
+        login: ${{ secrets.SONARQUBE_TOKEN }}
 
   
