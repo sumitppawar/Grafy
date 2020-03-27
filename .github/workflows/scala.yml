@@ -25,3 +25,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
+      - uses: kitabisa/sonarqube-action@master
+  
