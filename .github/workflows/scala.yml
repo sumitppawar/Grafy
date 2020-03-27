@@ -9,7 +9,7 @@ on:
 jobs:
 
   Scala-Job:
-    name: Sbt job
+    name: Sbt Task
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -20,6 +20,15 @@ jobs:
          java-version: 1.8
       - name: Compile
         run: sbt clean
-
+  sonarQubeTrigger:
+    name: SonarQube Trigger
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: SonarQube Scan
+        uses: kitabisa/sonarqube-action@master
+        with:
+          host: ${{ secrets.SONARQUBE_HOST }}
+          login: ${{ secrets.SONARQUBE_TOKEN }}
 
       
