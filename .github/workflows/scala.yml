@@ -7,10 +7,10 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
 
+  Scala-Job:
+    name: Sbt job
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Set up JDK 1.8
@@ -19,10 +19,14 @@ jobs:
         java-version: 1.8
     - name: Compile
       run: sbt clean compile
-    - name: Unit test
-      run:  sbt test  
-    - name: SonarQube Scan
-      uses: kitabisa/sonarqube-action@master
-      with:
+  Sonar-Qube:
+    name: SonarQube Scan
+    runs-on: ubuntu-latest
+    steps:
+     - name: SonarQube Scan
+     - uses: kitabisa/sonarqube-action@master
+       with:
         host: ${{ secrets.SONARQUBE_HOST }}
-        login: ${{ secrets.SONARQUBE_TOKEN }}  
+        login: ${{ secrets.SONARQUBE_TOKEN }}
+
+      
