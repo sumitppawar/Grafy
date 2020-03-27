@@ -20,15 +20,14 @@ jobs:
          java-version: 1.8
       - name: Compile
         run: sbt clean
-  sonarQubeTrigger:
-    name: SonarQube Trigger
+  sonarCloudTrigger:
+    name: SonarCloud Trigger
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
-    - name: SonarQube Scan
-      uses: kitabisa/sonarqube-action@master
-      with:
-        host: ${{ secrets.SONARQUBE_HOST }}
-        login: ${{ secrets.SONARQUBE_TOKEN }}
-
+    - name: SonarCloud Scan
+      uses: sonarsource/sonarcloud-github-action@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
   
