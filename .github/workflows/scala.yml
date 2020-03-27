@@ -26,9 +26,8 @@ jobs:
     steps:
       - name: Install Jq
         run: |
-         sudo export JQ=/usr/bin/jq
-         sudo curl https://stedolan.github.io/jq/download/linux64/jq > $JQ && chmod +x $JQ
-         sudo ls -la $JQ
+         sudo curl https://stedolan.github.io/jq/download/linux64/jq > /usr/bin/jq && chmod +x /usr/bin/jq
+         sudo ls -la /usr/bin/jq
       - uses: actions/checkout@master
       - name: SonarQube Scan
         uses: kitabisa/sonarqube-action@v0.0.1
