@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<checkstyle version="5.0">
+ <file name="/Users/pawarsumit/workspace/amls/amlscommon/src/main/scala/com/tookitaki/amls/common/async/http/Async.scala">
+  <error column="6" line="43" source="org.scalastyle.scalariform.MethodLengthChecker" severity="warning" message="Method is longer than 50 lines"/>
+  <error column="14" line="110" source="org.scalastyle.scalariform.MethodLengthChecker" severity="warning" message="Method is longer than 50 lines"/>
+ </file>
+ <file name="/Users/pawarsumit/workspace/amls/amlscommon/src/main/scala/com/tookitaki/amls/common/util/ConsolePrinterUtils.scala">
+  <error column="4" line="6" source="org.scalastyle.file.RegexChecker" severity="error" message="Regular expression matched 'println'"/>
+  <error column="4" line="7" source="org.scalastyle.file.RegexChecker" severity="error" message="Regular expression matched 'println'"/>
+  <error column="4" line="8" source="org.scalastyle.file.RegexChecker" severity="error" message="Regular expression matched 'println'"/>
+ </file>
+ <file name="/Users/pawarsumit/workspace/amls/amlscommon/src/main/scala/com/tookitaki/amls/common/security/AESEncrypted.scala">
+  <error column="58" line="37" source="org.scalastyle.scalariform.MagicNumberChecker" severity="warning" message="Magic Number"/>
+ </file>
+</checkstyle>
