@@ -26,7 +26,7 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - name: SonarQube Scan
-      uses: sumitppawar/sonarqube-action@master
+      uses: sumitppawar/sonarqube-action@sumitppawar-remove-jq
       with:
         host: ${{ secrets.SONARQUBE_HOST }}
         login: ${{ secrets.SONARQUBE_TOKEN }}
