@@ -1,3 +1,4 @@
 Testing
 abc
 Added some text
+Removed sonarcloud
