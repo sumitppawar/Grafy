@@ -1,0 +1,32 @@
+name: Scala CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+
+  Scala-Job:
+    name: Sbt Task
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+         java-version: 1.8
+      - name: Compile
+        run: sbt clean
+  sonarQubeTrigger:
+    name: SonarQube Trigger
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: SonarQube Scan
+      uses: sumitppawar/sonarqube-action@sumitppawar-remove-jq
+      with:
+        host: ${{ secrets.SONARQUBE_HOST }}
+        login: ${{ secrets.SONARQUBE_TOKEN }}
